@@ -27,8 +27,8 @@
 #include <grub/efi/efi.h>
 #include <grub/pci.h>
 
-#define INSYDE_SETUP_VAR		((grub_efi_char16_t*)"S\0e\0t\0u\0p\0\0\0")
-#define INSYDE_SETUP_VAR_NSIZE		(12)
+#define INSYDE_SETUP_VAR		((grub_efi_char16_t*)"P\0c\0h\0S\0e\0t\0u\0p\0\0\0")
+#define INSYDE_SETUP_VAR_NSIZE		(18)
 #define INSYDE_CUSTOM_VAR		((grub_efi_char16_t*)"C\0u\0s\0t\0o\0m\0\0\0")
 #define INSYDE_CUSTOM_VAR_NSIZE		(14)
 #define INSYDE_SETUP_VAR_SIZE		(0x2bc)
@@ -58,7 +58,7 @@ static grub_err_t grub_cmd_setup_var(grub_command_t cmd, int argc, char *argv[])
 	grub_uint8_t tmp_data[MAX_VAR_DATA_SIZE];
 	grub_uint16_t offset = 0x1af;
 	grub_efi_uintn_t setup_var_size = INSYDE_SETUP_VAR_SIZE;
-	grub_uint8_t set_value = 0x0;
+	grub_uint16_t set_value = 0x0;
 	grub_efi_uint32_t setup_var_attr = 0x7;
 	char *endptr;
 
@@ -176,7 +176,7 @@ static grub_err_t grub_cmd_setup_var(grub_command_t cmd, int argc, char *argv[])
 					return grub_error(GRUB_ERR_BAD_ARGUMENT,
 							  "offset is out of range.");
 				}
-				grub_printf("offset 0x%02x is: 0x%02x\n",
+				grub_printf("offset 0x%x is: 0x%x\n",
 					    offset, tmp_data[offset]);
 			}
 			/* modify and write Setup variable, if user requests it */
@@ -186,7 +186,7 @@ static grub_err_t grub_cmd_setup_var(grub_command_t cmd, int argc, char *argv[])
 					return grub_error(GRUB_ERR_BAD_ARGUMENT,
 							  "can't decode your second argument. Please provide a hex value (e.g. 0x01).");
 				}
-				grub_printf("setting offset 0x%02x to 0x%02x\n",
+				grub_printf("setting offset 0x%x to 0x%x\n",
 					    offset, set_value);
 				tmp_data[offset] = set_value;
 				status =
@@ -258,6 +258,7 @@ grub_cmd_lsefivar(grub_command_t cmd __attribute__ ((unused)),
 			}
 			status = 0;
 
+			if (setup_var_size > 100) {
 			grub_printf
 			    ("name size: %02u, var size: %06u (0x%06x), var guid: %08x-%04x-%04x - %02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x, name: ",
 			     (grub_uint32_t) name_size,
@@ -270,6 +271,7 @@ grub_cmd_lsefivar(grub_command_t cmd __attribute__ ((unused)),
 			    );
 			print_varname(name);
 			grub_printf("\n");
+			}
 		}
 	} while (!status);
 
